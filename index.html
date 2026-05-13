@@ -1,0 +1,2365 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet.photon.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet.photon.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="data/ROWHIWAYSITE_1.js"></script>
+        <script src="data/ROWPILILLAHIWAY_2.js"></script>
+        <script src="data/PILILLAJALJALAPAKILRDHIWAY_3.js"></script>
+        <script src="data/LOT1_4.js"></script>
+        <script src="data/LOT2_5.js"></script>
+        <script src="data/LOT3_6.js"></script>
+        <script src="data/LOT4_7.js"></script>
+        <script src="data/LOT5_8.js"></script>
+        <script src="data/LOT6_9.js"></script>
+        <script src="data/LOT7_10.js"></script>
+        <script src="data/LOT8_11.js"></script>
+        <script src="data/LOT9_12.js"></script>
+        <script src="data/LOT10_13.js"></script>
+        <script src="data/LOT11_14.js"></script>
+        <script src="data/LOT11B_15.js"></script>
+        <script src="data/LOT12_16.js"></script>
+        <script src="data/LOT13_17.js"></script>
+        <script src="data/LOT14_18.js"></script>
+        <script src="data/LOT15_19.js"></script>
+        <script src="data/LOT16_20.js"></script>
+        <script src="data/LOT17_21.js"></script>
+        <script src="data/LOT18_22.js"></script>
+        <script src="data/LOT19_23.js"></script>
+        <script src="data/LOT20_24.js"></script>
+        <script src="data/LOT21_25.js"></script>
+        <script src="data/LOT22_26.js"></script>
+        <script src="data/LOT23_27.js"></script>
+        <script src="data/LOT24_28.js"></script>
+        <script src="data/LOT25_29.js"></script>
+        <script src="data/LOT26_30.js"></script>
+        <script src="data/LOT27_31.js"></script>
+        <script src="data/LOT28_32.js"></script>
+        <script src="data/LOT29_33.js"></script>
+        <script src="data/LOT30_34.js"></script>
+        <script src="data/LOT31_35.js"></script>
+        <script src="data/LOT32_36.js"></script>
+        <script src="data/LOT33_37.js"></script>
+        <script src="data/LOT34_38.js"></script>
+        <script src="data/LOT35_39.js"></script>
+        <script src="data/LOT36_40.js"></script>
+        <script src="data/LOT37_41.js"></script>
+        <script src="data/LOT38_42.js"></script>
+        <script src="data/LOT39_43.js"></script>
+        <script src="data/LOT40_44.js"></script>
+        <script src="data/LOT41_45.js"></script>
+        <script src="data/LOT42_46.js"></script>
+        <script src="data/LOT43_47.js"></script>
+        <script src="data/LOT44_48.js"></script>
+        <script src="data/LOT45_49.js"></script>
+        <script src="data/LOT46_50.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[14.446703731505448,121.32772697481225],[14.456327160392433,121.34395627962475]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // modify popup if contains media
+        function addClassToPopupIfMedia(content, popup) {
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            var imgTd = tempDiv.querySelector('td img');
+            if (imgTd) {
+                var src = imgTd.getAttribute('src');
+                if (/\.(jpg|jpeg|png|gif|bmp|webp|avif)$/i.test(src)) {
+                    popup._contentNode.classList.add('media');
+                    setTimeout(function() {
+                        popup.update();
+                    }, 10);
+                } else if (/\.(mp3|wav|ogg|aac)$/i.test(src)) {
+                    var audio = document.createElement('audio');
+                    audio.controls = true;
+                    audio.src = src;
+                    imgTd.parentNode.replaceChild(audio, imgTd);
+                    popup._contentNode.classList.add('media');
+                    setTimeout(function() {
+                        popup.setContent(tempDiv.innerHTML);
+                        popup.update();
+                    }, 10);
+                } else if (/\.(mp4|webm|ogg|mov)$/i.test(src)) {
+                    var video = document.createElement('video');
+                    video.controls = true;
+                    video.src = src;
+                    video.style.width = "400px";
+                    video.style.height = "300px";
+                    video.style.maxHeight = "60vh";
+                    video.style.maxWidth = "60vw";
+                    imgTd.parentNode.replaceChild(video, imgTd);
+                    popup._contentNode.classList.add('media');
+                    // Aggiorna il popup quando il video carica i metadati
+                    video.addEventListener('loadedmetadata', function() {
+                        popup.update();
+                    });
+                    setTimeout(function() {
+                        popup.setContent(tempDiv.innerHTML);
+                        popup.update();
+                    }, 10);
+                } else {
+                    popup._contentNode.classList.remove('media');
+                }
+            } else {
+                popup._contentNode.classList.remove('media');
+            }
+        }
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_OpenStreetMap_0');
+        map.getPane('pane_OpenStreetMap_0').style.zIndex = 400;
+        var layer_OpenStreetMap_0 = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OpenStreetMap_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OpenStreetMap_0;
+        map.addLayer(layer_OpenStreetMap_0);
+        function pop_ROWHIWAYSITE_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">R.O.W. (HI</th>\
+                        <td class="visible-with-data" id="R.O.W. (HI">' + (feature.properties['R.O.W. (HI'] !== null ? autolinker.link(String(feature.properties['R.O.W. (HI']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_ROWHIWAYSITE_1_0() {
+            return {
+                pane: 'pane_ROWHIWAYSITE_1',
+                opacity: 1,
+                color: 'rgba(247,247,247,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(224,224,150,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_ROWHIWAYSITE_1');
+        map.getPane('pane_ROWHIWAYSITE_1').style.zIndex = 401;
+        map.getPane('pane_ROWHIWAYSITE_1').style['mix-blend-mode'] = 'normal';
+        var layer_ROWHIWAYSITE_1 = new L.geoJson(json_ROWHIWAYSITE_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_ROWHIWAYSITE_1',
+            layerName: 'layer_ROWHIWAYSITE_1',
+            pane: 'pane_ROWHIWAYSITE_1',
+            onEachFeature: pop_ROWHIWAYSITE_1,
+            style: style_ROWHIWAYSITE_1_0,
+        });
+        bounds_group.addLayer(layer_ROWHIWAYSITE_1);
+        map.addLayer(layer_ROWHIWAYSITE_1);
+        function pop_ROWPILILLAHIWAY_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">R.O.W. (PI</th>\
+                        <td class="visible-with-data" id="R.O.W. (PI">' + (feature.properties['R.O.W. (PI'] !== null ? autolinker.link(String(feature.properties['R.O.W. (PI']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_ROWPILILLAHIWAY_2_0() {
+            return {
+                pane: 'pane_ROWPILILLAHIWAY_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(243,166,178,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_ROWPILILLAHIWAY_2');
+        map.getPane('pane_ROWPILILLAHIWAY_2').style.zIndex = 402;
+        map.getPane('pane_ROWPILILLAHIWAY_2').style['mix-blend-mode'] = 'normal';
+        var layer_ROWPILILLAHIWAY_2 = new L.geoJson(json_ROWPILILLAHIWAY_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_ROWPILILLAHIWAY_2',
+            layerName: 'layer_ROWPILILLAHIWAY_2',
+            pane: 'pane_ROWPILILLAHIWAY_2',
+            onEachFeature: pop_ROWPILILLAHIWAY_2,
+            style: style_ROWPILILLAHIWAY_2_0,
+        });
+        bounds_group.addLayer(layer_ROWPILILLAHIWAY_2);
+        map.addLayer(layer_ROWPILILLAHIWAY_2);
+        function pop_PILILLAJALJALAPAKILRDHIWAY_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">PILILLA  J</th>\
+                        <td class="visible-with-data" id="PILILLA  J">' + (feature.properties['PILILLA  J'] !== null ? autolinker.link(String(feature.properties['PILILLA  J']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_PILILLAJALJALAPAKILRDHIWAY_3_0() {
+            return {
+                pane: 'pane_PILILLAJALJALAPAKILRDHIWAY_3',
+                opacity: 1,
+                color: 'rgba(183,72,75,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 8.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_PILILLAJALJALAPAKILRDHIWAY_3');
+        map.getPane('pane_PILILLAJALJALAPAKILRDHIWAY_3').style.zIndex = 403;
+        map.getPane('pane_PILILLAJALJALAPAKILRDHIWAY_3').style['mix-blend-mode'] = 'normal';
+        var layer_PILILLAJALJALAPAKILRDHIWAY_3 = new L.geoJson(json_PILILLAJALJALAPAKILRDHIWAY_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_PILILLAJALJALAPAKILRDHIWAY_3',
+            layerName: 'layer_PILILLAJALJALAPAKILRDHIWAY_3',
+            pane: 'pane_PILILLAJALJALAPAKILRDHIWAY_3',
+            onEachFeature: pop_PILILLAJALJALAPAKILRDHIWAY_3,
+            style: style_PILILLAJALJALAPAKILRDHIWAY_3_0,
+        });
+        bounds_group.addLayer(layer_PILILLAJALJALAPAKILRDHIWAY_3);
+        map.addLayer(layer_PILILLAJALJALAPAKILRDHIWAY_3);
+        function pop_LOT1_4(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 1</th>\
+                        <td class="visible-with-data" id="LOT 1">' + (feature.properties['LOT 1'] !== null ? autolinker.link(String(feature.properties['LOT 1']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT1_4_0() {
+            return {
+                pane: 'pane_LOT1_4',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT1_4');
+        map.getPane('pane_LOT1_4').style.zIndex = 404;
+        map.getPane('pane_LOT1_4').style['mix-blend-mode'] = 'normal';
+        var layer_LOT1_4 = new L.geoJson(json_LOT1_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT1_4',
+            layerName: 'layer_LOT1_4',
+            pane: 'pane_LOT1_4',
+            onEachFeature: pop_LOT1_4,
+            style: style_LOT1_4_0,
+        });
+        bounds_group.addLayer(layer_LOT1_4);
+        map.addLayer(layer_LOT1_4);
+        function pop_LOT2_5(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 2</th>\
+                        <td class="visible-with-data" id="LOT 2">' + (feature.properties['LOT 2'] !== null ? autolinker.link(String(feature.properties['LOT 2']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT2_5_0() {
+            return {
+                pane: 'pane_LOT2_5',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT2_5');
+        map.getPane('pane_LOT2_5').style.zIndex = 405;
+        map.getPane('pane_LOT2_5').style['mix-blend-mode'] = 'normal';
+        var layer_LOT2_5 = new L.geoJson(json_LOT2_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT2_5',
+            layerName: 'layer_LOT2_5',
+            pane: 'pane_LOT2_5',
+            onEachFeature: pop_LOT2_5,
+            style: style_LOT2_5_0,
+        });
+        bounds_group.addLayer(layer_LOT2_5);
+        map.addLayer(layer_LOT2_5);
+        function pop_LOT3_6(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 3</th>\
+                        <td class="visible-with-data" id="LOT 3">' + (feature.properties['LOT 3'] !== null ? autolinker.link(String(feature.properties['LOT 3']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT3_6_0() {
+            return {
+                pane: 'pane_LOT3_6',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT3_6');
+        map.getPane('pane_LOT3_6').style.zIndex = 406;
+        map.getPane('pane_LOT3_6').style['mix-blend-mode'] = 'normal';
+        var layer_LOT3_6 = new L.geoJson(json_LOT3_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT3_6',
+            layerName: 'layer_LOT3_6',
+            pane: 'pane_LOT3_6',
+            onEachFeature: pop_LOT3_6,
+            style: style_LOT3_6_0,
+        });
+        bounds_group.addLayer(layer_LOT3_6);
+        map.addLayer(layer_LOT3_6);
+        function pop_LOT4_7(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 4</th>\
+                        <td class="visible-with-data" id="LOT 4">' + (feature.properties['LOT 4'] !== null ? autolinker.link(String(feature.properties['LOT 4']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT4_7_0() {
+            return {
+                pane: 'pane_LOT4_7',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT4_7');
+        map.getPane('pane_LOT4_7').style.zIndex = 407;
+        map.getPane('pane_LOT4_7').style['mix-blend-mode'] = 'normal';
+        var layer_LOT4_7 = new L.geoJson(json_LOT4_7, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT4_7',
+            layerName: 'layer_LOT4_7',
+            pane: 'pane_LOT4_7',
+            onEachFeature: pop_LOT4_7,
+            style: style_LOT4_7_0,
+        });
+        bounds_group.addLayer(layer_LOT4_7);
+        map.addLayer(layer_LOT4_7);
+        function pop_LOT5_8(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 5</th>\
+                        <td class="visible-with-data" id="LOT 5">' + (feature.properties['LOT 5'] !== null ? autolinker.link(String(feature.properties['LOT 5']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT5_8_0() {
+            return {
+                pane: 'pane_LOT5_8',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT5_8');
+        map.getPane('pane_LOT5_8').style.zIndex = 408;
+        map.getPane('pane_LOT5_8').style['mix-blend-mode'] = 'normal';
+        var layer_LOT5_8 = new L.geoJson(json_LOT5_8, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT5_8',
+            layerName: 'layer_LOT5_8',
+            pane: 'pane_LOT5_8',
+            onEachFeature: pop_LOT5_8,
+            style: style_LOT5_8_0,
+        });
+        bounds_group.addLayer(layer_LOT5_8);
+        map.addLayer(layer_LOT5_8);
+        function pop_LOT6_9(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 6</th>\
+                        <td class="visible-with-data" id="LOT 6">' + (feature.properties['LOT 6'] !== null ? autolinker.link(String(feature.properties['LOT 6']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT6_9_0() {
+            return {
+                pane: 'pane_LOT6_9',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT6_9');
+        map.getPane('pane_LOT6_9').style.zIndex = 409;
+        map.getPane('pane_LOT6_9').style['mix-blend-mode'] = 'normal';
+        var layer_LOT6_9 = new L.geoJson(json_LOT6_9, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT6_9',
+            layerName: 'layer_LOT6_9',
+            pane: 'pane_LOT6_9',
+            onEachFeature: pop_LOT6_9,
+            style: style_LOT6_9_0,
+        });
+        bounds_group.addLayer(layer_LOT6_9);
+        map.addLayer(layer_LOT6_9);
+        function pop_LOT7_10(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 7</th>\
+                        <td class="visible-with-data" id="LOT 7">' + (feature.properties['LOT 7'] !== null ? autolinker.link(String(feature.properties['LOT 7']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT7_10_0() {
+            return {
+                pane: 'pane_LOT7_10',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT7_10');
+        map.getPane('pane_LOT7_10').style.zIndex = 410;
+        map.getPane('pane_LOT7_10').style['mix-blend-mode'] = 'normal';
+        var layer_LOT7_10 = new L.geoJson(json_LOT7_10, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT7_10',
+            layerName: 'layer_LOT7_10',
+            pane: 'pane_LOT7_10',
+            onEachFeature: pop_LOT7_10,
+            style: style_LOT7_10_0,
+        });
+        bounds_group.addLayer(layer_LOT7_10);
+        map.addLayer(layer_LOT7_10);
+        function pop_LOT8_11(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 8</th>\
+                        <td class="visible-with-data" id="LOT 8">' + (feature.properties['LOT 8'] !== null ? autolinker.link(String(feature.properties['LOT 8']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT8_11_0() {
+            return {
+                pane: 'pane_LOT8_11',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT8_11');
+        map.getPane('pane_LOT8_11').style.zIndex = 411;
+        map.getPane('pane_LOT8_11').style['mix-blend-mode'] = 'normal';
+        var layer_LOT8_11 = new L.geoJson(json_LOT8_11, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT8_11',
+            layerName: 'layer_LOT8_11',
+            pane: 'pane_LOT8_11',
+            onEachFeature: pop_LOT8_11,
+            style: style_LOT8_11_0,
+        });
+        bounds_group.addLayer(layer_LOT8_11);
+        map.addLayer(layer_LOT8_11);
+        function pop_LOT9_12(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 9</th>\
+                        <td class="visible-with-data" id="LOT 9">' + (feature.properties['LOT 9'] !== null ? autolinker.link(String(feature.properties['LOT 9']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT9_12_0() {
+            return {
+                pane: 'pane_LOT9_12',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT9_12');
+        map.getPane('pane_LOT9_12').style.zIndex = 412;
+        map.getPane('pane_LOT9_12').style['mix-blend-mode'] = 'normal';
+        var layer_LOT9_12 = new L.geoJson(json_LOT9_12, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT9_12',
+            layerName: 'layer_LOT9_12',
+            pane: 'pane_LOT9_12',
+            onEachFeature: pop_LOT9_12,
+            style: style_LOT9_12_0,
+        });
+        bounds_group.addLayer(layer_LOT9_12);
+        map.addLayer(layer_LOT9_12);
+        function pop_LOT10_13(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 10</th>\
+                        <td class="visible-with-data" id="LOT 10">' + (feature.properties['LOT 10'] !== null ? autolinker.link(String(feature.properties['LOT 10']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT10_13_0() {
+            return {
+                pane: 'pane_LOT10_13',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT10_13');
+        map.getPane('pane_LOT10_13').style.zIndex = 413;
+        map.getPane('pane_LOT10_13').style['mix-blend-mode'] = 'normal';
+        var layer_LOT10_13 = new L.geoJson(json_LOT10_13, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT10_13',
+            layerName: 'layer_LOT10_13',
+            pane: 'pane_LOT10_13',
+            onEachFeature: pop_LOT10_13,
+            style: style_LOT10_13_0,
+        });
+        bounds_group.addLayer(layer_LOT10_13);
+        map.addLayer(layer_LOT10_13);
+        function pop_LOT11_14(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 11</th>\
+                        <td class="visible-with-data" id="LOT 11">' + (feature.properties['LOT 11'] !== null ? autolinker.link(String(feature.properties['LOT 11']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT11_14_0() {
+            return {
+                pane: 'pane_LOT11_14',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT11_14');
+        map.getPane('pane_LOT11_14').style.zIndex = 414;
+        map.getPane('pane_LOT11_14').style['mix-blend-mode'] = 'normal';
+        var layer_LOT11_14 = new L.geoJson(json_LOT11_14, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT11_14',
+            layerName: 'layer_LOT11_14',
+            pane: 'pane_LOT11_14',
+            onEachFeature: pop_LOT11_14,
+            style: style_LOT11_14_0,
+        });
+        bounds_group.addLayer(layer_LOT11_14);
+        map.addLayer(layer_LOT11_14);
+        function pop_LOT11B_15(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 11B</th>\
+                        <td class="visible-with-data" id="LOT 11B">' + (feature.properties['LOT 11B'] !== null ? autolinker.link(String(feature.properties['LOT 11B']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT11B_15_0() {
+            return {
+                pane: 'pane_LOT11B_15',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT11B_15');
+        map.getPane('pane_LOT11B_15').style.zIndex = 415;
+        map.getPane('pane_LOT11B_15').style['mix-blend-mode'] = 'normal';
+        var layer_LOT11B_15 = new L.geoJson(json_LOT11B_15, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT11B_15',
+            layerName: 'layer_LOT11B_15',
+            pane: 'pane_LOT11B_15',
+            onEachFeature: pop_LOT11B_15,
+            style: style_LOT11B_15_0,
+        });
+        bounds_group.addLayer(layer_LOT11B_15);
+        map.addLayer(layer_LOT11B_15);
+        function pop_LOT12_16(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 12</th>\
+                        <td class="visible-with-data" id="LOT 12">' + (feature.properties['LOT 12'] !== null ? autolinker.link(String(feature.properties['LOT 12']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT12_16_0() {
+            return {
+                pane: 'pane_LOT12_16',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT12_16');
+        map.getPane('pane_LOT12_16').style.zIndex = 416;
+        map.getPane('pane_LOT12_16').style['mix-blend-mode'] = 'normal';
+        var layer_LOT12_16 = new L.geoJson(json_LOT12_16, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT12_16',
+            layerName: 'layer_LOT12_16',
+            pane: 'pane_LOT12_16',
+            onEachFeature: pop_LOT12_16,
+            style: style_LOT12_16_0,
+        });
+        bounds_group.addLayer(layer_LOT12_16);
+        map.addLayer(layer_LOT12_16);
+        function pop_LOT13_17(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT13D</th>\
+                        <td class="visible-with-data" id="LOT13D">' + (feature.properties['LOT13D'] !== null ? autolinker.link(String(feature.properties['LOT13D']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT13_17_0() {
+            return {
+                pane: 'pane_LOT13_17',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT13_17');
+        map.getPane('pane_LOT13_17').style.zIndex = 417;
+        map.getPane('pane_LOT13_17').style['mix-blend-mode'] = 'normal';
+        var layer_LOT13_17 = new L.geoJson(json_LOT13_17, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT13_17',
+            layerName: 'layer_LOT13_17',
+            pane: 'pane_LOT13_17',
+            onEachFeature: pop_LOT13_17,
+            style: style_LOT13_17_0,
+        });
+        bounds_group.addLayer(layer_LOT13_17);
+        map.addLayer(layer_LOT13_17);
+        function pop_LOT14_18(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 14</th>\
+                        <td class="visible-with-data" id="LOT 14">' + (feature.properties['LOT 14'] !== null ? autolinker.link(String(feature.properties['LOT 14']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT14_18_0() {
+            return {
+                pane: 'pane_LOT14_18',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT14_18');
+        map.getPane('pane_LOT14_18').style.zIndex = 418;
+        map.getPane('pane_LOT14_18').style['mix-blend-mode'] = 'normal';
+        var layer_LOT14_18 = new L.geoJson(json_LOT14_18, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT14_18',
+            layerName: 'layer_LOT14_18',
+            pane: 'pane_LOT14_18',
+            onEachFeature: pop_LOT14_18,
+            style: style_LOT14_18_0,
+        });
+        bounds_group.addLayer(layer_LOT14_18);
+        map.addLayer(layer_LOT14_18);
+        function pop_LOT15_19(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">1</th>\
+                        <td class="visible-with-data" id="1">' + (feature.properties['1'] !== null ? autolinker.link(String(feature.properties['1']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT15_19_0() {
+            return {
+                pane: 'pane_LOT15_19',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT15_19');
+        map.getPane('pane_LOT15_19').style.zIndex = 419;
+        map.getPane('pane_LOT15_19').style['mix-blend-mode'] = 'normal';
+        var layer_LOT15_19 = new L.geoJson(json_LOT15_19, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT15_19',
+            layerName: 'layer_LOT15_19',
+            pane: 'pane_LOT15_19',
+            onEachFeature: pop_LOT15_19,
+            style: style_LOT15_19_0,
+        });
+        bounds_group.addLayer(layer_LOT15_19);
+        map.addLayer(layer_LOT15_19);
+        function pop_LOT16_20(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 16</th>\
+                        <td class="visible-with-data" id="LOT 16">' + (feature.properties['LOT 16'] !== null ? autolinker.link(String(feature.properties['LOT 16']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT16_20_0() {
+            return {
+                pane: 'pane_LOT16_20',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT16_20');
+        map.getPane('pane_LOT16_20').style.zIndex = 420;
+        map.getPane('pane_LOT16_20').style['mix-blend-mode'] = 'normal';
+        var layer_LOT16_20 = new L.geoJson(json_LOT16_20, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT16_20',
+            layerName: 'layer_LOT16_20',
+            pane: 'pane_LOT16_20',
+            onEachFeature: pop_LOT16_20,
+            style: style_LOT16_20_0,
+        });
+        bounds_group.addLayer(layer_LOT16_20);
+        map.addLayer(layer_LOT16_20);
+        function pop_LOT17_21(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 17</th>\
+                        <td class="visible-with-data" id="LOT 17">' + (feature.properties['LOT 17'] !== null ? autolinker.link(String(feature.properties['LOT 17']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT17_21_0() {
+            return {
+                pane: 'pane_LOT17_21',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT17_21');
+        map.getPane('pane_LOT17_21').style.zIndex = 421;
+        map.getPane('pane_LOT17_21').style['mix-blend-mode'] = 'normal';
+        var layer_LOT17_21 = new L.geoJson(json_LOT17_21, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT17_21',
+            layerName: 'layer_LOT17_21',
+            pane: 'pane_LOT17_21',
+            onEachFeature: pop_LOT17_21,
+            style: style_LOT17_21_0,
+        });
+        bounds_group.addLayer(layer_LOT17_21);
+        map.addLayer(layer_LOT17_21);
+        function pop_LOT18_22(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 18</th>\
+                        <td class="visible-with-data" id="LOT 18">' + (feature.properties['LOT 18'] !== null ? autolinker.link(String(feature.properties['LOT 18']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT18_22_0() {
+            return {
+                pane: 'pane_LOT18_22',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT18_22');
+        map.getPane('pane_LOT18_22').style.zIndex = 422;
+        map.getPane('pane_LOT18_22').style['mix-blend-mode'] = 'normal';
+        var layer_LOT18_22 = new L.geoJson(json_LOT18_22, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT18_22',
+            layerName: 'layer_LOT18_22',
+            pane: 'pane_LOT18_22',
+            onEachFeature: pop_LOT18_22,
+            style: style_LOT18_22_0,
+        });
+        bounds_group.addLayer(layer_LOT18_22);
+        map.addLayer(layer_LOT18_22);
+        function pop_LOT19_23(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 19</th>\
+                        <td class="visible-with-data" id="LOT 19">' + (feature.properties['LOT 19'] !== null ? autolinker.link(String(feature.properties['LOT 19']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT19_23_0() {
+            return {
+                pane: 'pane_LOT19_23',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT19_23');
+        map.getPane('pane_LOT19_23').style.zIndex = 423;
+        map.getPane('pane_LOT19_23').style['mix-blend-mode'] = 'normal';
+        var layer_LOT19_23 = new L.geoJson(json_LOT19_23, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT19_23',
+            layerName: 'layer_LOT19_23',
+            pane: 'pane_LOT19_23',
+            onEachFeature: pop_LOT19_23,
+            style: style_LOT19_23_0,
+        });
+        bounds_group.addLayer(layer_LOT19_23);
+        map.addLayer(layer_LOT19_23);
+        function pop_LOT20_24(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 20</th>\
+                        <td class="visible-with-data" id="LOT 20">' + (feature.properties['LOT 20'] !== null ? autolinker.link(String(feature.properties['LOT 20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT20_24_0() {
+            return {
+                pane: 'pane_LOT20_24',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT20_24');
+        map.getPane('pane_LOT20_24').style.zIndex = 424;
+        map.getPane('pane_LOT20_24').style['mix-blend-mode'] = 'normal';
+        var layer_LOT20_24 = new L.geoJson(json_LOT20_24, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT20_24',
+            layerName: 'layer_LOT20_24',
+            pane: 'pane_LOT20_24',
+            onEachFeature: pop_LOT20_24,
+            style: style_LOT20_24_0,
+        });
+        bounds_group.addLayer(layer_LOT20_24);
+        map.addLayer(layer_LOT20_24);
+        function pop_LOT21_25(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 21</th>\
+                        <td class="visible-with-data" id="LOT 21">' + (feature.properties['LOT 21'] !== null ? autolinker.link(String(feature.properties['LOT 21']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT21_25_0() {
+            return {
+                pane: 'pane_LOT21_25',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT21_25');
+        map.getPane('pane_LOT21_25').style.zIndex = 425;
+        map.getPane('pane_LOT21_25').style['mix-blend-mode'] = 'normal';
+        var layer_LOT21_25 = new L.geoJson(json_LOT21_25, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT21_25',
+            layerName: 'layer_LOT21_25',
+            pane: 'pane_LOT21_25',
+            onEachFeature: pop_LOT21_25,
+            style: style_LOT21_25_0,
+        });
+        bounds_group.addLayer(layer_LOT21_25);
+        map.addLayer(layer_LOT21_25);
+        function pop_LOT22_26(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 22</th>\
+                        <td class="visible-with-data" id="LOT 22">' + (feature.properties['LOT 22'] !== null ? autolinker.link(String(feature.properties['LOT 22']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT22_26_0() {
+            return {
+                pane: 'pane_LOT22_26',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT22_26');
+        map.getPane('pane_LOT22_26').style.zIndex = 426;
+        map.getPane('pane_LOT22_26').style['mix-blend-mode'] = 'normal';
+        var layer_LOT22_26 = new L.geoJson(json_LOT22_26, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT22_26',
+            layerName: 'layer_LOT22_26',
+            pane: 'pane_LOT22_26',
+            onEachFeature: pop_LOT22_26,
+            style: style_LOT22_26_0,
+        });
+        bounds_group.addLayer(layer_LOT22_26);
+        map.addLayer(layer_LOT22_26);
+        function pop_LOT23_27(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 23</th>\
+                        <td class="visible-with-data" id="LOT 23">' + (feature.properties['LOT 23'] !== null ? autolinker.link(String(feature.properties['LOT 23']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT23_27_0() {
+            return {
+                pane: 'pane_LOT23_27',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT23_27');
+        map.getPane('pane_LOT23_27').style.zIndex = 427;
+        map.getPane('pane_LOT23_27').style['mix-blend-mode'] = 'normal';
+        var layer_LOT23_27 = new L.geoJson(json_LOT23_27, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT23_27',
+            layerName: 'layer_LOT23_27',
+            pane: 'pane_LOT23_27',
+            onEachFeature: pop_LOT23_27,
+            style: style_LOT23_27_0,
+        });
+        bounds_group.addLayer(layer_LOT23_27);
+        map.addLayer(layer_LOT23_27);
+        function pop_LOT24_28(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 24</th>\
+                        <td class="visible-with-data" id="LOT 24">' + (feature.properties['LOT 24'] !== null ? autolinker.link(String(feature.properties['LOT 24']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT24_28_0() {
+            return {
+                pane: 'pane_LOT24_28',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT24_28');
+        map.getPane('pane_LOT24_28').style.zIndex = 428;
+        map.getPane('pane_LOT24_28').style['mix-blend-mode'] = 'normal';
+        var layer_LOT24_28 = new L.geoJson(json_LOT24_28, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT24_28',
+            layerName: 'layer_LOT24_28',
+            pane: 'pane_LOT24_28',
+            onEachFeature: pop_LOT24_28,
+            style: style_LOT24_28_0,
+        });
+        bounds_group.addLayer(layer_LOT24_28);
+        map.addLayer(layer_LOT24_28);
+        function pop_LOT25_29(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 25</th>\
+                        <td class="visible-with-data" id="LOT 25">' + (feature.properties['LOT 25'] !== null ? autolinker.link(String(feature.properties['LOT 25']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT25_29_0() {
+            return {
+                pane: 'pane_LOT25_29',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT25_29');
+        map.getPane('pane_LOT25_29').style.zIndex = 429;
+        map.getPane('pane_LOT25_29').style['mix-blend-mode'] = 'normal';
+        var layer_LOT25_29 = new L.geoJson(json_LOT25_29, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT25_29',
+            layerName: 'layer_LOT25_29',
+            pane: 'pane_LOT25_29',
+            onEachFeature: pop_LOT25_29,
+            style: style_LOT25_29_0,
+        });
+        bounds_group.addLayer(layer_LOT25_29);
+        map.addLayer(layer_LOT25_29);
+        function pop_LOT26_30(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 26</th>\
+                        <td class="visible-with-data" id="LOT 26">' + (feature.properties['LOT 26'] !== null ? autolinker.link(String(feature.properties['LOT 26']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT26_30_0() {
+            return {
+                pane: 'pane_LOT26_30',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT26_30');
+        map.getPane('pane_LOT26_30').style.zIndex = 430;
+        map.getPane('pane_LOT26_30').style['mix-blend-mode'] = 'normal';
+        var layer_LOT26_30 = new L.geoJson(json_LOT26_30, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT26_30',
+            layerName: 'layer_LOT26_30',
+            pane: 'pane_LOT26_30',
+            onEachFeature: pop_LOT26_30,
+            style: style_LOT26_30_0,
+        });
+        bounds_group.addLayer(layer_LOT26_30);
+        map.addLayer(layer_LOT26_30);
+        function pop_LOT27_31(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 27</th>\
+                        <td class="visible-with-data" id="LOT 27">' + (feature.properties['LOT 27'] !== null ? autolinker.link(String(feature.properties['LOT 27']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT27_31_0() {
+            return {
+                pane: 'pane_LOT27_31',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT27_31');
+        map.getPane('pane_LOT27_31').style.zIndex = 431;
+        map.getPane('pane_LOT27_31').style['mix-blend-mode'] = 'normal';
+        var layer_LOT27_31 = new L.geoJson(json_LOT27_31, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT27_31',
+            layerName: 'layer_LOT27_31',
+            pane: 'pane_LOT27_31',
+            onEachFeature: pop_LOT27_31,
+            style: style_LOT27_31_0,
+        });
+        bounds_group.addLayer(layer_LOT27_31);
+        map.addLayer(layer_LOT27_31);
+        function pop_LOT28_32(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 28</th>\
+                        <td class="visible-with-data" id="LOT 28">' + (feature.properties['LOT 28'] !== null ? autolinker.link(String(feature.properties['LOT 28']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT28_32_0() {
+            return {
+                pane: 'pane_LOT28_32',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT28_32');
+        map.getPane('pane_LOT28_32').style.zIndex = 432;
+        map.getPane('pane_LOT28_32').style['mix-blend-mode'] = 'normal';
+        var layer_LOT28_32 = new L.geoJson(json_LOT28_32, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT28_32',
+            layerName: 'layer_LOT28_32',
+            pane: 'pane_LOT28_32',
+            onEachFeature: pop_LOT28_32,
+            style: style_LOT28_32_0,
+        });
+        bounds_group.addLayer(layer_LOT28_32);
+        map.addLayer(layer_LOT28_32);
+        function pop_LOT29_33(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 29</th>\
+                        <td class="visible-with-data" id="LOT 29">' + (feature.properties['LOT 29'] !== null ? autolinker.link(String(feature.properties['LOT 29']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT29_33_0() {
+            return {
+                pane: 'pane_LOT29_33',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT29_33');
+        map.getPane('pane_LOT29_33').style.zIndex = 433;
+        map.getPane('pane_LOT29_33').style['mix-blend-mode'] = 'normal';
+        var layer_LOT29_33 = new L.geoJson(json_LOT29_33, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT29_33',
+            layerName: 'layer_LOT29_33',
+            pane: 'pane_LOT29_33',
+            onEachFeature: pop_LOT29_33,
+            style: style_LOT29_33_0,
+        });
+        bounds_group.addLayer(layer_LOT29_33);
+        map.addLayer(layer_LOT29_33);
+        function pop_LOT30_34(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 30</th>\
+                        <td class="visible-with-data" id="LOT 30">' + (feature.properties['LOT 30'] !== null ? autolinker.link(String(feature.properties['LOT 30']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT30_34_0() {
+            return {
+                pane: 'pane_LOT30_34',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT30_34');
+        map.getPane('pane_LOT30_34').style.zIndex = 434;
+        map.getPane('pane_LOT30_34').style['mix-blend-mode'] = 'normal';
+        var layer_LOT30_34 = new L.geoJson(json_LOT30_34, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT30_34',
+            layerName: 'layer_LOT30_34',
+            pane: 'pane_LOT30_34',
+            onEachFeature: pop_LOT30_34,
+            style: style_LOT30_34_0,
+        });
+        bounds_group.addLayer(layer_LOT30_34);
+        map.addLayer(layer_LOT30_34);
+        function pop_LOT31_35(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LO 31</th>\
+                        <td class="visible-with-data" id="LO 31">' + (feature.properties['LO 31'] !== null ? autolinker.link(String(feature.properties['LO 31']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT31_35_0() {
+            return {
+                pane: 'pane_LOT31_35',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT31_35');
+        map.getPane('pane_LOT31_35').style.zIndex = 435;
+        map.getPane('pane_LOT31_35').style['mix-blend-mode'] = 'normal';
+        var layer_LOT31_35 = new L.geoJson(json_LOT31_35, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT31_35',
+            layerName: 'layer_LOT31_35',
+            pane: 'pane_LOT31_35',
+            onEachFeature: pop_LOT31_35,
+            style: style_LOT31_35_0,
+        });
+        bounds_group.addLayer(layer_LOT31_35);
+        map.addLayer(layer_LOT31_35);
+        function pop_LOT32_36(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 32</th>\
+                        <td class="visible-with-data" id="LOT 32">' + (feature.properties['LOT 32'] !== null ? autolinker.link(String(feature.properties['LOT 32']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT32_36_0() {
+            return {
+                pane: 'pane_LOT32_36',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT32_36');
+        map.getPane('pane_LOT32_36').style.zIndex = 436;
+        map.getPane('pane_LOT32_36').style['mix-blend-mode'] = 'normal';
+        var layer_LOT32_36 = new L.geoJson(json_LOT32_36, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT32_36',
+            layerName: 'layer_LOT32_36',
+            pane: 'pane_LOT32_36',
+            onEachFeature: pop_LOT32_36,
+            style: style_LOT32_36_0,
+        });
+        bounds_group.addLayer(layer_LOT32_36);
+        map.addLayer(layer_LOT32_36);
+        function pop_LOT33_37(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 33</th>\
+                        <td class="visible-with-data" id="LOT 33">' + (feature.properties['LOT 33'] !== null ? autolinker.link(String(feature.properties['LOT 33']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT33_37_0() {
+            return {
+                pane: 'pane_LOT33_37',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT33_37');
+        map.getPane('pane_LOT33_37').style.zIndex = 437;
+        map.getPane('pane_LOT33_37').style['mix-blend-mode'] = 'normal';
+        var layer_LOT33_37 = new L.geoJson(json_LOT33_37, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT33_37',
+            layerName: 'layer_LOT33_37',
+            pane: 'pane_LOT33_37',
+            onEachFeature: pop_LOT33_37,
+            style: style_LOT33_37_0,
+        });
+        bounds_group.addLayer(layer_LOT33_37);
+        map.addLayer(layer_LOT33_37);
+        function pop_LOT34_38(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 34</th>\
+                        <td class="visible-with-data" id="LOT 34">' + (feature.properties['LOT 34'] !== null ? autolinker.link(String(feature.properties['LOT 34']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT34_38_0() {
+            return {
+                pane: 'pane_LOT34_38',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT34_38');
+        map.getPane('pane_LOT34_38').style.zIndex = 438;
+        map.getPane('pane_LOT34_38').style['mix-blend-mode'] = 'normal';
+        var layer_LOT34_38 = new L.geoJson(json_LOT34_38, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT34_38',
+            layerName: 'layer_LOT34_38',
+            pane: 'pane_LOT34_38',
+            onEachFeature: pop_LOT34_38,
+            style: style_LOT34_38_0,
+        });
+        bounds_group.addLayer(layer_LOT34_38);
+        map.addLayer(layer_LOT34_38);
+        function pop_LOT35_39(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 35</th>\
+                        <td class="visible-with-data" id="LOT 35">' + (feature.properties['LOT 35'] !== null ? autolinker.link(String(feature.properties['LOT 35']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT35_39_0() {
+            return {
+                pane: 'pane_LOT35_39',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT35_39');
+        map.getPane('pane_LOT35_39').style.zIndex = 439;
+        map.getPane('pane_LOT35_39').style['mix-blend-mode'] = 'normal';
+        var layer_LOT35_39 = new L.geoJson(json_LOT35_39, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT35_39',
+            layerName: 'layer_LOT35_39',
+            pane: 'pane_LOT35_39',
+            onEachFeature: pop_LOT35_39,
+            style: style_LOT35_39_0,
+        });
+        bounds_group.addLayer(layer_LOT35_39);
+        map.addLayer(layer_LOT35_39);
+        function pop_LOT36_40(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 36</th>\
+                        <td class="visible-with-data" id="LOT 36">' + (feature.properties['LOT 36'] !== null ? autolinker.link(String(feature.properties['LOT 36']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT36_40_0() {
+            return {
+                pane: 'pane_LOT36_40',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT36_40');
+        map.getPane('pane_LOT36_40').style.zIndex = 440;
+        map.getPane('pane_LOT36_40').style['mix-blend-mode'] = 'normal';
+        var layer_LOT36_40 = new L.geoJson(json_LOT36_40, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT36_40',
+            layerName: 'layer_LOT36_40',
+            pane: 'pane_LOT36_40',
+            onEachFeature: pop_LOT36_40,
+            style: style_LOT36_40_0,
+        });
+        bounds_group.addLayer(layer_LOT36_40);
+        map.addLayer(layer_LOT36_40);
+        function pop_LOT37_41(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 37</th>\
+                        <td class="visible-with-data" id="LOT 37">' + (feature.properties['LOT 37'] !== null ? autolinker.link(String(feature.properties['LOT 37']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT37_41_0() {
+            return {
+                pane: 'pane_LOT37_41',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT37_41');
+        map.getPane('pane_LOT37_41').style.zIndex = 441;
+        map.getPane('pane_LOT37_41').style['mix-blend-mode'] = 'normal';
+        var layer_LOT37_41 = new L.geoJson(json_LOT37_41, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT37_41',
+            layerName: 'layer_LOT37_41',
+            pane: 'pane_LOT37_41',
+            onEachFeature: pop_LOT37_41,
+            style: style_LOT37_41_0,
+        });
+        bounds_group.addLayer(layer_LOT37_41);
+        map.addLayer(layer_LOT37_41);
+        function pop_LOT38_42(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 38</th>\
+                        <td class="visible-with-data" id="LOT 38">' + (feature.properties['LOT 38'] !== null ? autolinker.link(String(feature.properties['LOT 38']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT38_42_0() {
+            return {
+                pane: 'pane_LOT38_42',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT38_42');
+        map.getPane('pane_LOT38_42').style.zIndex = 442;
+        map.getPane('pane_LOT38_42').style['mix-blend-mode'] = 'normal';
+        var layer_LOT38_42 = new L.geoJson(json_LOT38_42, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT38_42',
+            layerName: 'layer_LOT38_42',
+            pane: 'pane_LOT38_42',
+            onEachFeature: pop_LOT38_42,
+            style: style_LOT38_42_0,
+        });
+        bounds_group.addLayer(layer_LOT38_42);
+        map.addLayer(layer_LOT38_42);
+        function pop_LOT39_43(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 39</th>\
+                        <td class="visible-with-data" id="LOT 39">' + (feature.properties['LOT 39'] !== null ? autolinker.link(String(feature.properties['LOT 39']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT39_43_0() {
+            return {
+                pane: 'pane_LOT39_43',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT39_43');
+        map.getPane('pane_LOT39_43').style.zIndex = 443;
+        map.getPane('pane_LOT39_43').style['mix-blend-mode'] = 'normal';
+        var layer_LOT39_43 = new L.geoJson(json_LOT39_43, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT39_43',
+            layerName: 'layer_LOT39_43',
+            pane: 'pane_LOT39_43',
+            onEachFeature: pop_LOT39_43,
+            style: style_LOT39_43_0,
+        });
+        bounds_group.addLayer(layer_LOT39_43);
+        map.addLayer(layer_LOT39_43);
+        function pop_LOT40_44(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 40</th>\
+                        <td class="visible-with-data" id="LOT 40">' + (feature.properties['LOT 40'] !== null ? autolinker.link(String(feature.properties['LOT 40']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT40_44_0() {
+            return {
+                pane: 'pane_LOT40_44',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT40_44');
+        map.getPane('pane_LOT40_44').style.zIndex = 444;
+        map.getPane('pane_LOT40_44').style['mix-blend-mode'] = 'normal';
+        var layer_LOT40_44 = new L.geoJson(json_LOT40_44, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT40_44',
+            layerName: 'layer_LOT40_44',
+            pane: 'pane_LOT40_44',
+            onEachFeature: pop_LOT40_44,
+            style: style_LOT40_44_0,
+        });
+        bounds_group.addLayer(layer_LOT40_44);
+        map.addLayer(layer_LOT40_44);
+        function pop_LOT41_45(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 41</th>\
+                        <td class="visible-with-data" id="LOT 41">' + (feature.properties['LOT 41'] !== null ? autolinker.link(String(feature.properties['LOT 41']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT41_45_0() {
+            return {
+                pane: 'pane_LOT41_45',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT41_45');
+        map.getPane('pane_LOT41_45').style.zIndex = 445;
+        map.getPane('pane_LOT41_45').style['mix-blend-mode'] = 'normal';
+        var layer_LOT41_45 = new L.geoJson(json_LOT41_45, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT41_45',
+            layerName: 'layer_LOT41_45',
+            pane: 'pane_LOT41_45',
+            onEachFeature: pop_LOT41_45,
+            style: style_LOT41_45_0,
+        });
+        bounds_group.addLayer(layer_LOT41_45);
+        map.addLayer(layer_LOT41_45);
+        function pop_LOT42_46(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 42</th>\
+                        <td class="visible-with-data" id="LOT 42">' + (feature.properties['LOT 42'] !== null ? autolinker.link(String(feature.properties['LOT 42']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT42_46_0() {
+            return {
+                pane: 'pane_LOT42_46',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT42_46');
+        map.getPane('pane_LOT42_46').style.zIndex = 446;
+        map.getPane('pane_LOT42_46').style['mix-blend-mode'] = 'normal';
+        var layer_LOT42_46 = new L.geoJson(json_LOT42_46, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT42_46',
+            layerName: 'layer_LOT42_46',
+            pane: 'pane_LOT42_46',
+            onEachFeature: pop_LOT42_46,
+            style: style_LOT42_46_0,
+        });
+        bounds_group.addLayer(layer_LOT42_46);
+        map.addLayer(layer_LOT42_46);
+        function pop_LOT43_47(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 43</th>\
+                        <td class="visible-with-data" id="LOT 43">' + (feature.properties['LOT 43'] !== null ? autolinker.link(String(feature.properties['LOT 43']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT43_47_0() {
+            return {
+                pane: 'pane_LOT43_47',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT43_47');
+        map.getPane('pane_LOT43_47').style.zIndex = 447;
+        map.getPane('pane_LOT43_47').style['mix-blend-mode'] = 'normal';
+        var layer_LOT43_47 = new L.geoJson(json_LOT43_47, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT43_47',
+            layerName: 'layer_LOT43_47',
+            pane: 'pane_LOT43_47',
+            onEachFeature: pop_LOT43_47,
+            style: style_LOT43_47_0,
+        });
+        bounds_group.addLayer(layer_LOT43_47);
+        map.addLayer(layer_LOT43_47);
+        function pop_LOT44_48(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td class="visible-with-data" id="LOT 44" colspan="2"><strong>LOT 44</strong><br />' + (feature.properties['LOT 44'] !== null ? autolinker.link(String(feature.properties['LOT 44']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT44_48_0() {
+            return {
+                pane: 'pane_LOT44_48',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT44_48');
+        map.getPane('pane_LOT44_48').style.zIndex = 448;
+        map.getPane('pane_LOT44_48').style['mix-blend-mode'] = 'normal';
+        var layer_LOT44_48 = new L.geoJson(json_LOT44_48, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT44_48',
+            layerName: 'layer_LOT44_48',
+            pane: 'pane_LOT44_48',
+            onEachFeature: pop_LOT44_48,
+            style: style_LOT44_48_0,
+        });
+        bounds_group.addLayer(layer_LOT44_48);
+        map.addLayer(layer_LOT44_48);
+        function pop_LOT45_49(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">LOT 45</th>\
+                        <td class="visible-with-data" id="LOT 45">' + (feature.properties['LOT 45'] !== null ? autolinker.link(String(feature.properties['LOT 45']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT45_49_0() {
+            return {
+                pane: 'pane_LOT45_49',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT45_49');
+        map.getPane('pane_LOT45_49').style.zIndex = 449;
+        map.getPane('pane_LOT45_49').style['mix-blend-mode'] = 'normal';
+        var layer_LOT45_49 = new L.geoJson(json_LOT45_49, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT45_49',
+            layerName: 'layer_LOT45_49',
+            pane: 'pane_LOT45_49',
+            onEachFeature: pop_LOT45_49,
+            style: style_LOT45_49_0,
+        });
+        bounds_group.addLayer(layer_LOT45_49);
+        map.addLayer(layer_LOT45_49);
+        function pop_LOT46_50(feature, layer) {
+            var popupContent = '<table>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LOT46_50_0() {
+            return {
+                pane: 'pane_LOT46_50',
+                opacity: 1,
+                color: 'rgba(53,121,177,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LOT46_50');
+        map.getPane('pane_LOT46_50').style.zIndex = 450;
+        map.getPane('pane_LOT46_50').style['mix-blend-mode'] = 'normal';
+        var layer_LOT46_50 = new L.geoJson(json_LOT46_50, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LOT46_50',
+            layerName: 'layer_LOT46_50',
+            pane: 'pane_LOT46_50',
+            onEachFeature: pop_LOT46_50,
+            style: style_LOT46_50_0,
+        });
+        bounds_group.addLayer(layer_LOT46_50);
+        map.addLayer(layer_LOT46_50);
+        var overlaysTree = [
+        {label: '<b>MVSM (SDP ONLY)</b>',  selectAllCheckbox: true, children: [
+            {label: '<img src="legend/LOT46_50.png" /> LOT 46', layer: layer_LOT46_50},
+            {label: '<img src="legend/LOT45_49.png" /> LOT 45', layer: layer_LOT45_49},
+            {label: '<img src="legend/LOT44_48.png" /> LOT 44', layer: layer_LOT44_48},
+            {label: '<img src="legend/LOT43_47.png" /> LOT 43', layer: layer_LOT43_47},
+            {label: '<img src="legend/LOT42_46.png" /> LOT 42', layer: layer_LOT42_46},
+            {label: '<img src="legend/LOT41_45.png" /> LOT 41', layer: layer_LOT41_45},
+            {label: '<img src="legend/LOT40_44.png" /> LOT 40', layer: layer_LOT40_44},
+            {label: '<img src="legend/LOT39_43.png" /> LOT 39', layer: layer_LOT39_43},
+            {label: '<img src="legend/LOT38_42.png" /> LOT 38', layer: layer_LOT38_42},
+            {label: '<img src="legend/LOT37_41.png" /> LOT 37', layer: layer_LOT37_41},
+            {label: '<img src="legend/LOT36_40.png" /> LOT 36', layer: layer_LOT36_40},
+            {label: '<img src="legend/LOT35_39.png" /> LOT 35', layer: layer_LOT35_39},
+            {label: '<img src="legend/LOT34_38.png" /> LOT 34', layer: layer_LOT34_38},
+            {label: '<img src="legend/LOT33_37.png" /> LOT 33', layer: layer_LOT33_37},
+            {label: '<img src="legend/LOT32_36.png" /> LOT 32', layer: layer_LOT32_36},
+            {label: '<img src="legend/LOT31_35.png" /> LOT 31', layer: layer_LOT31_35},
+            {label: '<img src="legend/LOT30_34.png" /> LOT 30', layer: layer_LOT30_34},
+            {label: '<img src="legend/LOT29_33.png" /> LOT 29', layer: layer_LOT29_33},
+            {label: '<img src="legend/LOT28_32.png" /> LOT 28', layer: layer_LOT28_32},
+            {label: '<img src="legend/LOT27_31.png" /> LOT 27', layer: layer_LOT27_31},
+            {label: '<img src="legend/LOT26_30.png" /> LOT 26', layer: layer_LOT26_30},
+            {label: '<img src="legend/LOT25_29.png" /> LOT 25', layer: layer_LOT25_29},
+            {label: '<img src="legend/LOT24_28.png" /> LOT 24', layer: layer_LOT24_28},
+            {label: '<img src="legend/LOT23_27.png" /> LOT 23', layer: layer_LOT23_27},
+            {label: '<img src="legend/LOT22_26.png" /> LOT 22', layer: layer_LOT22_26},
+            {label: '<img src="legend/LOT21_25.png" /> LOT 21', layer: layer_LOT21_25},
+            {label: '<img src="legend/LOT20_24.png" /> LOT 20', layer: layer_LOT20_24},
+            {label: '<img src="legend/LOT19_23.png" /> LOT 19', layer: layer_LOT19_23},
+            {label: '<img src="legend/LOT18_22.png" /> LOT 18', layer: layer_LOT18_22},
+            {label: '<img src="legend/LOT17_21.png" /> LOT 17', layer: layer_LOT17_21},
+            {label: '<img src="legend/LOT16_20.png" /> LOT 16', layer: layer_LOT16_20},
+            {label: '<img src="legend/LOT15_19.png" /> LOT 15', layer: layer_LOT15_19},
+            {label: '<img src="legend/LOT14_18.png" /> LOT 14', layer: layer_LOT14_18},
+            {label: '<img src="legend/LOT13_17.png" /> LOT13', layer: layer_LOT13_17},
+            {label: '<img src="legend/LOT12_16.png" /> LOT 12', layer: layer_LOT12_16},
+            {label: '<img src="legend/LOT11B_15.png" /> LOT 11B', layer: layer_LOT11B_15},
+            {label: '<img src="legend/LOT11_14.png" /> LOT 11', layer: layer_LOT11_14},
+            {label: '<img src="legend/LOT10_13.png" /> LOT 10', layer: layer_LOT10_13},
+            {label: '<img src="legend/LOT9_12.png" /> LOT 9', layer: layer_LOT9_12},
+            {label: '<img src="legend/LOT8_11.png" /> LOT 8', layer: layer_LOT8_11},
+            {label: '<img src="legend/LOT7_10.png" /> LOT 7', layer: layer_LOT7_10},
+            {label: '<img src="legend/LOT6_9.png" /> LOT 6', layer: layer_LOT6_9},
+            {label: '<img src="legend/LOT5_8.png" /> LOT 5', layer: layer_LOT5_8},
+            {label: '<img src="legend/LOT4_7.png" /> LOT 4', layer: layer_LOT4_7},
+            {label: '<img src="legend/LOT3_6.png" /> LOT 3', layer: layer_LOT3_6},
+            {label: '<img src="legend/LOT2_5.png" /> LOT 2', layer: layer_LOT2_5},
+            {label: '<img src="legend/LOT1_4.png" /> LOT 1', layer: layer_LOT1_4},
+            {label: '<img src="legend/PILILLAJALJALAPAKILRDHIWAY_3.png" /> PILILLA  JALJALA-PAKIL RD (HIWAY)', layer: layer_PILILLAJALJALAPAKILRDHIWAY_3},
+            {label: '<img src="legend/ROWPILILLAHIWAY_2.png" /> R.O.W. (PILILLA HI-WAY)', layer: layer_ROWPILILLAHIWAY_2},
+            {label: '<img src="legend/ROWHIWAYSITE_1.png" /> R.O.W. (HIWAY-SITE)', layer: layer_ROWHIWAYSITE_1},]},
+            {label: "OpenStreetMap", layer: layer_OpenStreetMap_0, radioGroup: 'bm' },]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: false, 
+        });
+        lay.addTo(map);
+		document.addEventListener("DOMContentLoaded", function() {
+            // set new Layers List height which considers toggle icon
+            function newLayersListHeight() {
+                var layerScrollbarElement = document.querySelector('.leaflet-control-layers-scrollbar');
+                if (layerScrollbarElement) {
+                    var layersListElement = document.querySelector('.leaflet-control-layers-list');
+                    var originalHeight = layersListElement.style.height 
+                        || window.getComputedStyle(layersListElement).height;
+                    var newHeight = parseFloat(originalHeight) - 50;
+                    layersListElement.style.height = newHeight + 'px';
+                }
+            }
+            var isLayersListExpanded = true;
+            var controlLayersElement = document.querySelector('.leaflet-control-layers');
+            var toggleLayerControl = document.querySelector('.leaflet-control-layers-toggle');
+            // toggle Collapsed/Expanded and apply new Layers List height
+            toggleLayerControl.addEventListener('click', function() {
+                if (isLayersListExpanded) {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                } else {
+                    controlLayersElement.classList.add('leaflet-control-layers-expanded');
+                }
+                isLayersListExpanded = !isLayersListExpanded;
+                newLayersListHeight()
+            });	
+			// apply new Layers List height if toggle layerstree
+			if (controlLayersElement) {
+				controlLayersElement.addEventListener('click', function(event) {
+					var toggleLayerHeaderPointer = event.target.closest('.leaflet-layerstree-header-pointer span');
+					if (toggleLayerHeaderPointer) {
+						newLayersListHeight();
+					}
+				});
+			}
+            // Collapsed/Expanded at Start to apply new height
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            // Collapsed touch/small screen
+            var isSmallScreen = window.innerWidth < 650;
+            if (isSmallScreen) {
+                setTimeout(function() {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                    isLayersListExpanded = !isLayersListExpanded;
+                }, 500);
+            }  
+        });       
+        setBounds();
+        resetLabels([layer_LOT1_4,layer_LOT2_5]);
+        map.on("zoomend", function(){
+            resetLabels([layer_LOT1_4,layer_LOT2_5]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_LOT1_4,layer_LOT2_5]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_LOT1_4,layer_LOT2_5]);
+        });
+        </script>        
+    </body>
+</html>
